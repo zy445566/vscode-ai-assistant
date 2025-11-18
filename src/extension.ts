@@ -72,14 +72,6 @@ export function activate(context: vscode.ExtensionContext) {
         mcpManager.showOutput();
     });
 
-    const showConfigInfoCommand = vscode.commands.registerCommand('aiChat.showConfigInfo', () => {
-        const configInfo = aiChatProvider.getConfigInfo();
-        vscode.window.showInformationMessage(
-            configInfo,
-            { modal: true }
-        );
-    });
-
     context.subscriptions.push(
         openChatCommand,
         configureSettingsCommand,
@@ -87,7 +79,6 @@ export function activate(context: vscode.ExtensionContext) {
         listMcpServersCommand,
         reconnectMcpServerCommand,
         showMcpOutputCommand,
-        showConfigInfoCommand,
         aiChatProvider,
         mcpManager
     );

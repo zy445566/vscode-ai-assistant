@@ -8,6 +8,7 @@
 - ✅ 可配置API地址、密钥、模型名称等参数
 - ✅ **🔧 高级配置支持**：自定义HTTP请求头和请求体
 - ✅ **🌐 广泛兼容**：支持Claude、国内API等各类服务
+- ✅ **🚀 流式响应**：实时查看AI回复过程，类似ChatGPT体验
 - ✅ 美观的对话界面，支持历史记录
 - ✅ MCP服务器接入支持
 - ✅ 实时查看MCP服务器状态和工具列表
@@ -37,7 +38,9 @@
 - `aiChat.customBodyFields`: **自定义请求体字段**（JSON格式），可添加模型特有参数
 - `aiChat.overrideDefaultBody`: **覆盖默认请求体**，用于API格式完全不同的服务
 
-> 💡 **详细配置指南**: 查看 [CONFIG_GUIDE.md](./CONFIG_GUIDE.md) 了解如何配置各种AI服务
+> 💡 **详细配置指南**: 
+> - 查看 [CONFIG_GUIDE.md](./CONFIG_GUIDE.md) 了解如何配置各种AI服务
+> - 查看 [STREAM_GUIDE.md](./STREAM_GUIDE.md) 了解流式响应的使用
 
 ### MCP配置
 
