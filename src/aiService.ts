@@ -27,6 +27,7 @@ export interface AiConfig {
     customBodyFields: Record<string, any>;
     overrideDefaultBody: boolean;
     enableStream: boolean;
+    enableTools: boolean;
 }
 
 export class AiService {
@@ -54,7 +55,8 @@ export class AiService {
             customHeaders: config.get('customHeaders', {}) || {},
             customBodyFields: config.get('customBodyFields', {}) || {},
             overrideDefaultBody: config.get('overrideDefaultBody', false),
-            enableStream: config.get('enableStream', true)
+            enableStream: config.get('enableStream', true),
+            enableTools: config.get('enableTools', true)
         };
     }
 
@@ -70,7 +72,7 @@ export class AiService {
 
             while (currentIteration < maxIterations) {
                 // 构建默认请求体
-                const defaultBody = {
+                const defaultBody: any = {
                     model: this.config.modelName,
                     messages: conversationMessages.map(msg => ({
                         role: msg.role,
@@ -78,11 +80,15 @@ export class AiService {
                         tool_call_id: msg.tool_call_id || undefined,
                         tool_calls: msg.tool_calls || undefined
                     })),
-                    tools,
-                    tool_choice: "auto",
                     temperature: this.config.temperature,
                     max_tokens: this.config.maxTokens
                 };
+
+                // 只有在启用工具时才添加工具相关字段
+                if (this.config.enableTools) {
+                    defaultBody.tools = tools;
+                    defaultBody.tool_choice = "auto";
+                }
                 console.log('overrideDefaultBody:', this.config.overrideDefaultBody);
                 // 构建最终请求体
                 let finalBody: any;
@@ -216,7 +222,7 @@ export class AiService {
 
             while (currentIteration < maxIterations) {
                 // 构建默认请求体
-                const defaultBody = {
+                const defaultBody: any = {
                     model: this.config.modelName,
                     messages: conversationMessages.map(msg => ({
                         role: msg.role,
@@ -224,12 +230,16 @@ export class AiService {
                         tool_call_id: msg.tool_call_id || undefined,
                         tool_calls: msg.tool_calls || undefined
                     })),
-                    tools,
-                    tool_choice: "auto",
                     temperature: this.config.temperature,
                     max_tokens: this.config.maxTokens,
                     stream: true
                 };
+
+                // 只有在启用工具时才添加工具相关字段
+                if (this.config.enableTools) {
+                    defaultBody.tools = tools;
+                    defaultBody.tool_choice = "auto";
+                }
 
                 // 构建最终请求体
                 let finalBody: any;

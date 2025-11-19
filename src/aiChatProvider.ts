@@ -45,6 +45,9 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
                 case 'requestHistory':
                     this.updateWebview();
                     break;
+                case 'toggleTools':
+                    await this.toggleTools(data.enabled);
+                    break;
             }
         });
 
@@ -143,9 +146,11 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
 
     private updateWebview() {
         if (this._view) {
+            const config = this.aiService.getConfig();
             this._view.webview.postMessage({
                 type: 'updateHistory',
-                history: this.chatHistory
+                history: this.chatHistory,
+                toolsEnabled: config.enableTools
             });
         }
     }
@@ -259,6 +264,64 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
             gap: 4px;
             margin-bottom: 8px;
             flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .switch-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-right: 8px;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--vscode-button-secondaryBackground);
+            transition: .4s;
+            border-radius: 20px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--vscode-button-background);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        
+        .switch-label {
+            font-size: 0.85em;
+            color: var(--vscode-foreground);
         }
         
         .thinking {
@@ -415,6 +478,16 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
 <body>
     <div class="chat-container" id="chatContainer"></div>
     
+    <div class="toolbar">
+        <div class="switch-container">
+            <label class="switch">
+                <input type="checkbox" id="toolsSwitch" checked onchange="toggleTools()">
+                <span class="slider"></span>
+            </label>
+            <span class="switch-label">Agent模式</span>
+        </div>
+    </div>
+    
     <div class="input-container">
         <input type="text" id="messageInput" placeholder="输入消息..." onkeypress="handleKeyPress(event)">
         <button class="button" onclick="sendMessage()">发送</button>
@@ -449,6 +522,14 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
         
         function configureSettings() {
             vscode.postMessage({ type: 'configureSettings' });
+        }
+        
+        function toggleTools() {
+            const toolsSwitch = document.getElementById('toolsSwitch');
+            vscode.postMessage({
+                type: 'toggleTools',
+                enabled: toolsSwitch.checked
+            });
         }
         
         function updateChatHistory(history) {
@@ -500,6 +581,13 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
             switch (message.type) {
                 case 'updateHistory':
                     updateChatHistory(message.history);
+                    // 同步工具开关状态
+                    if (message.toolsEnabled !== undefined) {
+                        const toolsSwitch = document.getElementById('toolsSwitch');
+                        if (toolsSwitch && toolsSwitch.checked !== message.toolsEnabled) {
+                            toolsSwitch.checked = message.toolsEnabled;
+                        }
+                    }
                     break;
                 case 'streamStart':
                     // 创建流式消息容器
@@ -564,6 +652,19 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
                     document.getElementById('chatContainer').appendChild(errorDiv);
                     errorDiv.scrollIntoView();
                     break;
+                case 'status':
+                    const statusDiv = document.createElement('div');
+                    statusDiv.style.cssText = 'background-color: var(--vscode-textBlockQuote-background); border: 1px solid var(--vscode-textBlockQuote-border); padding: 6px; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em; color: var(--vscode-foreground);';
+                    statusDiv.textContent = message.message;
+                    document.getElementById('chatContainer').appendChild(statusDiv);
+                    statusDiv.scrollIntoView();
+                    // 3秒后自动移除状态消息
+                    setTimeout(() => {
+                        if (statusDiv.parentNode) {
+                            statusDiv.parentNode.removeChild(statusDiv);
+                        }
+                    }, 3000);
+                    break;
             }
         });
         
@@ -588,6 +689,21 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
         this.chatHistory = [];
         this.saveChatHistory();
         this.updateWebview();
+    }
+
+    public async toggleTools(enabled: boolean) {
+        const config = vscode.workspace.getConfiguration('aiChat');
+        await config.update('enableTools', enabled, vscode.ConfigurationTarget.Global);
+        this.aiService = new AiService(); // 重新创建服务实例以使用新配置
+        
+        // 显示状态提示
+        if (this._view) {
+            const statusMessage = enabled ? '工具调用已启用' : '工具调用已禁用';
+            this._view.webview.postMessage({
+                type: 'status',
+                message: statusMessage
+            });
+        }
     }
 
     private loadChatHistory() {
