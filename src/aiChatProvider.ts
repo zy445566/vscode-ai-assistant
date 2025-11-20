@@ -484,7 +484,7 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
                 <input type="checkbox" id="toolsSwitch" checked onchange="toggleTools()">
                 <span class="slider"></span>
             </label>
-            <span class="switch-label">Agent模式</span>
+            <span class="switch-label">Agent模式(此模式会读取并修改代码)</span>
         </div>
     </div>
     
