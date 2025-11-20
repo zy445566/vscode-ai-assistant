@@ -34,6 +34,15 @@ export const toolHandlers = {
 
     writeFile: async (params: { filePath: string; fileData: string }): Promise<string> => {
         try {
+            // 询问用户是否确认修改
+            const answer = await vscode.window.showQuickPick(['是', '否'], {
+                placeHolder: `确定要修改文件 ${params.filePath} 吗？`
+            });
+            
+            if (answer !== '是') {
+                throw new Error('用户拒绝修改');
+            }
+            
             // 确保目录存在
             const dir = path.dirname(params.filePath);
             await fs.promises.mkdir(dir, { recursive: true });
