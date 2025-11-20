@@ -20,7 +20,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                     />
                     <span className="slider"></span>
                 </label>
-                <span className="switch-label">Agent模式(此模式会读取并修改代码)</span>
+                <span className="switch-label">Agent模式(如果模型支持则可能会读取并修改代码)</span>
             </div>
         </div>
     );
