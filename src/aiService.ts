@@ -558,7 +558,7 @@ export class AiService {
         // 首先检查是否是MCP工具（格式：serverName_toolName）
         const mcpMatch = functionName.match(/^([^_]+)_(.+)$/);
         if (mcpMatch && this.mcpManager) {
-            const [, serverName, toolName] = mcpMatch;
+            const [serverName, toolName] = mcpMatch;
             
             // 检查是否选择了该MCP服务器
             if (this.selectedMcpServers.includes(serverName)) {
@@ -577,12 +577,6 @@ export class AiService {
         switch (functionName) {
             case 'getProjectPath':
                 return await toolHandlers.getProjectPath();
-            case 'readDirectory':
-                return await toolHandlers.readDirectory(args);
-            case 'readFile':
-                return await toolHandlers.readFile(args);
-            case 'writeFile':
-                return await toolHandlers.writeFile(args);
             case 'getCurrentFilePath':
                 return await toolHandlers.getCurrentFilePath();
             case 'getAllOpenFiles':
@@ -595,6 +589,23 @@ export class AiService {
                 return await toolHandlers.getCursorInfo();
             case 'openFileToEdit':
                 return await toolHandlers.openFileToEdit(args);
+            // vscode.workspace.fs 方法
+            case 'fsReadFile':
+                return await toolHandlers.fsReadFile(args);
+            case 'fsWriteFile':
+                return await toolHandlers.fsWriteFile(args);
+            case 'fsDelete':
+                return await toolHandlers.fsDelete(args);
+            case 'fsRename':
+                return await toolHandlers.fsRename(args);
+            case 'fsCreateDirectory':
+                return await toolHandlers.fsCreateDirectory(args);
+            case 'fsReadDirectory':
+                return await toolHandlers.fsReadDirectory(args);
+            case 'fsStat':
+                return await toolHandlers.fsStat(args);
+            case 'fsCopy':
+                return await toolHandlers.fsCopy(args);
             default:
                 throw new Error(`未知的工具函数: ${functionName}`);
         }
