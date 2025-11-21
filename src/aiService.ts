@@ -558,8 +558,8 @@ export class AiService {
         // 首先检查是否是MCP工具（格式：serverName_toolName）
         const mcpMatch = functionName.match(/^([^_]+)_(.+)$/);
         if (mcpMatch && this.mcpManager) {
-            const [serverName, toolName] = mcpMatch;
-            
+            const [_input, serverName, toolName] = mcpMatch;
+            console.log(`识别为MCP工具: 服务器=${serverName}, 工具=${toolName}`);
             // 检查是否选择了该MCP服务器
             if (this.selectedMcpServers.includes(serverName)) {
                 try {

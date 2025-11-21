@@ -3,6 +3,7 @@ import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { WebSocketClientTransport } from "@modelcontextprotocol/sdk/client/websocket.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { env } from 'process';
 
 
 export interface McpServerConfig {
@@ -10,7 +11,8 @@ export interface McpServerConfig {
     type: 'sse' | 'websocket' | 'stdio';
     stdio?:{
         command: string;
-        args: string[];
+        args?: string[];
+        env?: { [key: string]: string}
     }
     sse?: string,
     websocket?: string,
@@ -27,31 +29,8 @@ export class McpManager implements vscode.Disposable {
     }
 
     public async initialize(): Promise<void> {
-        const config = vscode.workspace.getConfiguration('aiChat');
-        
-        // 解析 MCP 服务器配置
-        let servers: McpServerConfig[] = [];
-        const serversStr = config.get('mcpServers', '[]') as string;
-        if (serversStr && serversStr.trim()) {
-            try {
-                servers = JSON.parse(serversStr);
-            } catch (e: any) {
-                this.outputChannel.appendLine(`解析 mcpServers JSON 失败: ${e.message}`);
-                vscode.window.showErrorMessage(`mcpServers JSON 格式错误: ${e.message}`);
-            }
-        }
-
-        this.outputChannel.appendLine('正在初始化MCP服务器...');
+        this.outputChannel.appendLine('MCP管理器已初始化，使用手动连接模式');
         this.connectedServers = new Map();
-
-        for (const serverConfig of servers) {
-            try {
-                await this.connectToServer(serverConfig);
-            } catch (error: any) {
-                this.outputChannel.appendLine(`连接MCP服务器 ${serverConfig.name} 失败: ${error.message}`);
-                vscode.window.showWarningMessage(`MCP服务器 ${serverConfig.name} 连接失败: ${error.message}`);
-            }
-        }
     }
 
     private async connectToServer(config: McpServerConfig): Promise<void> {
@@ -63,12 +42,19 @@ export class McpManager implements vscode.Disposable {
         if(config.type === 'stdio' && config.stdio) {
             // 替换 ${workspaceFolder} 为实际的工作区路径
             const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-            const processedArgs = config.stdio.args.map(arg => 
+            const processedArgs = config.stdio?.args?.map(arg => 
                 arg.replace(/\$\{workspaceFolder\}/g, workspaceFolder || '')
             );
+            const processedEnv = config.stdio?.env ? Object.fromEntries(
+                Object.entries(config.stdio.env).map(([key, value]) => [
+                    key,
+                    value.replace(/\$\{workspaceFolder\}/g, workspaceFolder || '')
+                ])
+            ) : undefined;
             const stdioConfig = {
                 ...config.stdio,
-                args: processedArgs
+                args: processedArgs || [],
+                env: processedEnv  || {}
             };
             const transport = new StdioClientTransport(stdioConfig);
             await mcpCli.connect(transport);
@@ -113,7 +99,7 @@ export class McpManager implements vscode.Disposable {
         return this.getConnectedServers().includes(serverName);
     }
 
-    public async reconnectServer(serverName: string): Promise<void> {
+    public async connectServer(serverName: string): Promise<void> {
         const config = vscode.workspace.getConfiguration('aiChat');
         
         // 解析 MCP 服务器配置
@@ -135,11 +121,16 @@ export class McpManager implements vscode.Disposable {
             throw new Error(`未找到MCP服务器配置: ${serverName}`);
         }
 
-        // 先断开现有连接
-        await this.disconnectServer(serverName);
-
-        // 重新连接
+        // 连接服务器（如果已连接，会先断开再连接）
+        if (this.isServerConnected(serverName)) {
+            await this.disconnectServer(serverName);
+        }
+        
         await this.connectToServer(serverConfig);
+    }
+
+    public async reconnectServer(serverName: string): Promise<void> {
+        await this.connectServer(serverName);
     }
 
     private async disconnectServer(serverName: string): Promise<void> {

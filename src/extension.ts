@@ -83,7 +83,7 @@ export function activate(context: vscode.ExtensionContext) {
         mcpManager
     );
 
-    // 初始化MCP
+    // 初始化MCP管理器（手动连接模式）
     mcpManager.initialize();
 }
 

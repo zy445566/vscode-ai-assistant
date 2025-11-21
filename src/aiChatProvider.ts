@@ -55,6 +55,9 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
                 case 'requestMcpServers':
                     this.sendMcpServers();
                     break;
+                case 'requestAllMcpServers':
+                    this.sendAllMcpServers();
+                    break;
                 case 'updateMcpSelection':
                     this.selectedMcpServers = data.selectedMcpServers || [];
                     this.aiService.setSelectedMcpServers(this.selectedMcpServers);
@@ -68,6 +71,12 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
                             message: statusMessage
                         });
                     }
+                    break;
+                case 'reconnectMcpServer':
+                    await this.reconnectMcpServer(data.serverName);
+                    break;
+                case 'reconnectMcpServer':
+                    this.reconnectMcpServer(data.serverName);
                     break;
             }
         });
@@ -225,11 +234,91 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
 
     private sendMcpServers() {
         if (this._view && this.mcpManager) {
-            const servers = this.mcpManager.getConnectedServers();
+            // 获取配置的所有MCP服务器和连接状态
+            const config = vscode.workspace.getConfiguration('aiChat');
+            let allServers: string[] = [];
+            const serversStr = config.get('mcpServers', '[]') as string;
+            if (serversStr && serversStr.trim()) {
+                try {
+                    const serversConfig = JSON.parse(serversStr);
+                    allServers = serversConfig.map((s: any) => s.name);
+                } catch (e: any) {
+                    console.error('解析 mcpServers JSON 失败:', e);
+                }
+            }
+            
+            const connectedServers = this.mcpManager.getConnectedServers();
+            const allMcpServers = allServers.map(name => ({
+                name,
+                connected: connectedServers.includes(name)
+            }));
+            
             this._view.webview.postMessage({
-                type: 'updateMcpServers',
-                mcpServers: servers
+                type: 'updateAllMcpServers',
+                allMcpServers
             });
+        }
+    }
+
+    private async sendAllMcpServers() {
+        if (this._view && this.mcpManager) {
+            const config = vscode.workspace.getConfiguration('aiChat');
+            let allServers: string[] = [];
+            const serversStr = config.get('mcpServers', '[]') as string;
+            if (serversStr && serversStr.trim()) {
+                try {
+                    const serversConfig = JSON.parse(serversStr);
+                    allServers = serversConfig.map((s: any) => s.name);
+                } catch (e: any) {
+                    console.error('解析 mcpServers JSON 失败:', e);
+                }
+            }
+            
+            const connectedServers = this.mcpManager.getConnectedServers();
+            const allMcpServers = allServers.map(name => ({
+                name,
+                connected: connectedServers.includes(name)
+            }));
+            
+            this._view.webview.postMessage({
+                type: 'updateAllMcpServers',
+                allMcpServers
+            });
+        }
+    }
+
+    private async reconnectMcpServer(serverName?: string) {
+        if (!serverName || !this.mcpManager) {
+            return;
+        }
+        
+        try {
+            if (this._view) {
+                this._view.webview.postMessage({
+                    type: 'status',
+                    message: `正在连接MCP服务器: ${serverName}...`
+                });
+            }
+            
+            await this.mcpManager.reconnectServer(serverName);
+            
+            // 连接成功后更新状态
+            await this.sendAllMcpServers();
+            this.sendMcpServers();
+            
+            if (this._view) {
+                this._view.webview.postMessage({
+                    type: 'status',
+                    message: `MCP服务器 ${serverName} 连接成功`
+                });
+            }
+        } catch (error: any) {
+            if (this._view) {
+                this._view.webview.postMessage({
+                    type: 'error',
+                    message: `连接MCP服务器 ${serverName} 失败: ${error.message}`
+                });
+            }
         }
     }
 

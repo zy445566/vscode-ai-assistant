@@ -17,13 +17,14 @@ export const App: React.FC = () => {
     const [toolsEnabled, setToolsEnabled] = useState(false);
     const [streamingMessageId, setStreamingMessageId] = useState<number | undefined>();
     const [isLoading, setIsLoading] = useState(false);
-    const [mcpServers, setMcpServers] = useState<string[]>([]);
+    const [allMcpServers, setAllMcpServers] = useState<any[]>([]);
     const [selectedMcpServers, setSelectedMcpServers] = useState<string[]>([]);
     
     useEffect(() => {
         // 请求初始数据
         vscode.postMessage({ type: 'requestHistory' });
         vscode.postMessage({ type: 'requestMcpServers' });
+        vscode.postMessage({ type: 'requestAllMcpServers' });
 
         // 监听来自扩展的消息
         const handleMessage = (event: MessageEvent<WebviewMessage>) => {
@@ -73,8 +74,9 @@ export const App: React.FC = () => {
                     console.log('Status:', message.message);
                     break;
                     
-                case 'updateMcpServers':
-                    setMcpServers(message.mcpServers || []);
+
+                case 'updateAllMcpServers':
+                    setAllMcpServers(message.allMcpServers || []);
                     break;
             }
         };
@@ -110,6 +112,13 @@ export const App: React.FC = () => {
         });
     };
 
+    const handleReconnectServer = (serverName: string) => {
+        vscode.postMessage({
+            type: 'reconnectMcpServer',
+            serverName: serverName
+        });
+    };
+
     return (
         <div className="app">
             <ChatContainer 
@@ -119,9 +128,10 @@ export const App: React.FC = () => {
             <Toolbar 
                 toolsEnabled={toolsEnabled}
                 onToggleTools={handleToggleTools}
-                mcpServers={mcpServers}
+                allMcpServers={allMcpServers}
                 selectedMcpServers={selectedMcpServers}
                 onMcpSelectionChange={handleMcpSelectionChange}
+                onReconnectServer={handleReconnectServer}
             />
             <InputArea 
                 onSendMessage={handleSendMessage}

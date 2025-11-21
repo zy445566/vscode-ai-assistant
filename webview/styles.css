@@ -167,36 +167,133 @@ input:checked+.slider:before {
 
 .mcp-selector {
     display: flex;
+    flex-direction: column;
     gap: 8px;
+    margin-top: 8px;
+    padding: 8px;
+    border: 1px solid var(--vscode-panel-border);
+    border-radius: 4px;
+    background-color: var(--vscode-editor-background);
+}
+
+.mcp-header {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
+    margin-bottom: 4px;
 }
 
 .mcp-label {
     font-size: 0.85em;
     color: var(--vscode-foreground);
     font-weight: bold;
-    min-width: 60px;
 }
 
-.mcp-checkbox-container {
+.mcp-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.mcp-action-button {
+    padding: 2px 6px;
+    font-size: 0.7em;
+    border: 1px solid var(--vscode-button-border);
+    border-radius: 2px;
+    background-color: var(--vscode-button-secondaryBackground);
+    color: var(--vscode-button-secondaryForeground);
+    cursor: pointer;
+}
+
+.mcp-action-button:hover {
+    background-color: var(--vscode-button-secondaryHoverBackground);
+}
+
+.mcp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.mcp-item {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.mcp-item:last-child {
+    border-bottom: none;
 }
 
 .mcp-checkbox-label {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     font-size: 0.8em;
     color: var(--vscode-foreground);
     cursor: pointer;
+    flex: 1;
+}
+
+.mcp-checkbox-label.disabled {
+    color: var(--vscode-disabledForeground);
+    cursor: not-allowed;
 }
 
 .mcp-checkbox-label input[type="checkbox"] {
     margin: 0;
     width: 14px;
     height: 14px;
+}
+
+.mcp-checkbox-label.disabled input[type="checkbox"] {
+    cursor: not-allowed;
+}
+
+.mcp-server-name {
+    flex: 1;
+}
+
+.mcp-server-name.connected {
+    color: var(--vscode-foreground);
+}
+
+.mcp-server-name.disconnected {
+    color: var(--vscode-disabledForeground);
+    text-decoration: line-through;
+}
+
+.mcp-status-indicator {
+    font-size: 0.7em;
+    padding: 1px 4px;
+    border-radius: 2px;
+    margin-left: 4px;
+}
+
+.mcp-status-indicator.connected {
+    background-color: var(--vscode-testing-iconPassed);
+    color: var(--vscode-editor-foreground);
+}
+
+.mcp-status-indicator.disconnected {
+    background-color: var(--vscode-errorForeground);
+    color: var(--vscode-editor-background);
+}
+
+.mcp-reconnect-button {
+    padding: 2px 6px;
+    font-size: 0.7em;
+    border: 1px solid var(--vscode-button-border);
+    border-radius: 2px;
+    background-color: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+.mcp-reconnect-button:hover {
+    background-color: var(--vscode-button-hoverBackground);
 }
 
 .thinking {
