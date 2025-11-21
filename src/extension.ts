@@ -1,6 +1,11 @@
 import * as vscode from 'vscode';
 import { AiChatProvider } from './aiChatProvider';
 import { McpManager } from './mcpManager';
+import {EventSource} from 'eventsource';
+
+console.log('EventSource',EventSource);
+// 将 EventSource 挂载到全局
+(global as any).EventSource = EventSource;
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('AI Chat Assistant 插件已激活');
