@@ -167,6 +167,7 @@ input:checked+.slider:before {
 
 .mcp-selector {
     display: flex;
+    width: 100%;
     flex-direction: column;
     gap: 8px;
     margin-top: 8px;
