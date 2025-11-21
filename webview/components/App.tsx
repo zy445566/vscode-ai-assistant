@@ -119,6 +119,13 @@ export const App: React.FC = () => {
         });
     };
 
+    const handleDisconnectServer = (serverName: string) => {
+        vscode.postMessage({
+            type: 'disconnectMcpServer',
+            serverName: serverName
+        });
+    };
+
     return (
         <div className="app">
             <ChatContainer 
@@ -132,6 +139,7 @@ export const App: React.FC = () => {
                 selectedMcpServers={selectedMcpServers}
                 onMcpSelectionChange={handleMcpSelectionChange}
                 onReconnectServer={handleReconnectServer}
+                onDisconnectServer={handleDisconnectServer}
             />
             <InputArea 
                 onSendMessage={handleSendMessage}

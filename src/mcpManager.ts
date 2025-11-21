@@ -133,7 +133,7 @@ export class McpManager implements vscode.Disposable {
         await this.connectServer(serverName);
     }
 
-    private async disconnectServer(serverName: string): Promise<void> {
+    public async disconnectServer(serverName: string): Promise<void> {
         if (this.connectedServers.has(serverName)) {
             await this.connectedServers.get(serverName)?.close();
             this.connectedServers.delete(serverName);

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { AiService, ChatMessage } from './aiService';
+import type { McpManager } from './mcpManager';
 
 export class AiChatProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = 'aiChatView';
@@ -8,7 +9,7 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
     private aiService: AiService;
     private chatHistory: ChatMessage[] = [];
     private context: vscode.ExtensionContext;
-    private mcpManager?: any;
+    private mcpManager?: McpManager;
     private selectedMcpServers: string[] = [];
 
     constructor(context: vscode.ExtensionContext, mcpManager?: any) {
@@ -75,8 +76,8 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
                 case 'reconnectMcpServer':
                     await this.reconnectMcpServer(data.serverName);
                     break;
-                case 'reconnectMcpServer':
-                    this.reconnectMcpServer(data.serverName);
+                case 'disconnectMcpServer':
+                    await this.disconnectMcpServer(data.serverName);
                     break;
             }
         });
@@ -321,6 +322,42 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
             }
         }
     }
+
+    private async disconnectMcpServer(serverName?: string) {
+        if (!serverName || !this.mcpManager) {
+            return;
+        }
+        
+        try {
+            if (this._view) {
+                this._view.webview.postMessage({
+                    type: 'status',
+                    message: `正在关闭MCP服务器: ${serverName}...`
+                });
+            }
+            
+            await this.mcpManager.disconnectServer(serverName);
+            
+            // 关闭成功后更新状态
+            await this.sendAllMcpServers();
+            this.sendMcpServers();
+            
+            if (this._view) {
+                this._view.webview.postMessage({
+                    type: 'status',
+                    message: `MCP服务器 ${serverName} 关闭成功`
+                });
+            }
+        } catch (error: any) {
+            if (this._view) {
+                this._view.webview.postMessage({
+                    type: 'error',
+                    message: `关闭MCP服务器 ${serverName} 失败: ${error.message}`
+                });
+            }
+        }
+    }
+    
 
     private loadChatHistory() {
         const history = this.context.globalState.get<ChatMessage[]>('chatHistory', []);

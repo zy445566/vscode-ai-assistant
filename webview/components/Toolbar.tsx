@@ -8,6 +8,7 @@ interface ToolbarProps {
     selectedMcpServers?: string[];
     onMcpSelectionChange?: (servers: string[]) => void;
     onReconnectServer?: (serverName: string) => void;
+    onDisconnectServer?: (serverName: string) => void;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({ 
@@ -16,7 +17,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     allMcpServers = [],
     selectedMcpServers = [],
     onMcpSelectionChange,
-    onReconnectServer
+    onReconnectServer,
+    onDisconnectServer
 }) => {
     const [mcpServerInfos, setMcpServerInfos] = useState<McpServerInfo[]>(allMcpServers);
 
@@ -40,6 +42,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         onReconnectServer?.(serverName);
     };
 
+    const handleDisconnect = (serverName: string, e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onDisconnectServer?.(serverName);
+    };
+
     const handleSelectAll = () => {
         const connectedServers = mcpServerInfos
             .filter(info => info.connected)
@@ -56,6 +64,18 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         // 逐个连接服务器
         disconnectedServers.forEach(serverName => {
             onReconnectServer?.(serverName);
+        });
+    };
+
+    const handleDisconnectAll = () => {
+        // 断开所有已连接的服务器
+        const connectedServers = mcpServerInfos
+            .filter(info => info.connected)
+            .map(info => info.name);
+        
+        // 逐个断开服务器连接
+        connectedServers.forEach(serverName => {
+            onDisconnectServer?.(serverName);
         });
     };
 
@@ -88,6 +108,13 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                                 title="连接所有未连接的服务"
                             >
                                 连接全部
+                            </button>
+                            <button 
+                                className="mcp-action-button"
+                                onClick={handleDisconnectAll}
+                                title="断开所有已连接的服务"
+                            >
+                                断开全部
                             </button>
                             <button 
                                 className="mcp-action-button"
@@ -136,6 +163,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                                             title="连接此服务器"
                                         >
                                             连接
+                                        </button>
+                                    )}
+                                    {isConnected && (
+                                        <button 
+                                            className="mcp-disconnect-button"
+                                            onClick={(e) => handleDisconnect(serverInfo.name, e)}
+                                            title="断开此服务器"
+                                        >
+                                            断开
                                         </button>
                                     )}
                                 </div>
