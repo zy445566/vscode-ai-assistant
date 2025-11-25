@@ -8,7 +8,7 @@ console.log('EventSource',EventSource);
 (global as any).EventSource = EventSource;
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('AI Chat Assistant 插件已激活');
+    console.log('VSCODE AI Assistant 插件已激活');
 
     const mcpManager = new McpManager(context);
     const aiChatProvider = new AiChatProvider(context, mcpManager);
@@ -93,5 +93,5 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
-    console.log('AI Chat Assistant 插件已停用');
+    console.log('VSCODE AI Assistant 插件已停用');
 }

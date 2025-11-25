@@ -67,7 +67,7 @@
       ]
     },
     "configuration": {
-      "title": "AI Chat Assistant",
+      "title": "VSCODE AI Assistant",
       "properties": {
         "aiChat.apiBaseUrl": {
           "type": "string",

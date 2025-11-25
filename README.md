@@ -1,4 +1,4 @@
-# AI Chat Assistant
+# VSCODE AI Assistant
 
 一个支持AI对话和MCP(Model Context Protocol)接入的VSCode插件。
 

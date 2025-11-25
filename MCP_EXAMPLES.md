@@ -1,6 +1,6 @@
 # MCP配置示例
 
-这个文件展示了如何在VSCode AI Chat Assistant中配置MCP服务器。
+这个文件展示了如何在VSCODE AI Assistant中配置MCP服务器。
 
 ## 基本配置格式
 
