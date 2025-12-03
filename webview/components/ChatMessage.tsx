@@ -1,6 +1,7 @@
 import React from 'react';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
+import 'highlight.js/styles/vs2015.min.css';
 import { ChatMessage as ChatMessageType } from '../types';
 import styles from './ChatMessage.module.css';
 
@@ -15,6 +16,9 @@ marked.setOptions({
   extensions: {
     renderers: {
       code: function(code) {
+        if(!code.lang) {
+            return `<pre class='code'><code>${hljs.highlightAuto(code.text).value}</code></pre>`;
+        }
         return `<pre class='code'><code class="language-${code.lang}">${hljs.highlight(code.text, { language: code.lang }).value}</code></pre>`;
       }
     },
