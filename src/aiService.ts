@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import axios from 'axios';
 import {tools, toolHandlers} from './tools';
 import type {McpManager} from './mcpManager';
 
@@ -37,6 +36,7 @@ export class AiService {
     private config: AiConfig;
     private mcpManager?: McpManager;
     private selectedMcpServers: string[] = [];
+    private lastRequestController: AbortController | null = null;
 
     constructor(mcpManager?: any) {
         this.config = this.loadConfig();
@@ -128,11 +128,17 @@ export class AiService {
         return [...filteredBuiltInTools, ...mcpTools];
     }
 
+    public async cancelMessage() {
+        if (this.lastRequestController) {
+            this.lastRequestController?.abort();
+        }
+    }
+
     public async sendMessage(messages: ChatMessage[]): Promise<string> {
         if (!this.config.apiKey && !this.config.customHeaders['Authorization']) {
             throw new Error('请先配置API密钥或自定义Authorization头');
         }
-
+        let responseData = null
         try {
             let conversationMessages = [...messages];
             
@@ -212,18 +218,21 @@ export class AiService {
                     headers: headers,
                     body: finalBody
                 });
+                this.lastRequestController = new AbortController();
+                const signal = this.lastRequestController.signal;
+                const response = await fetch(`${this.config.apiBaseUrl}/chat/completions`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(finalBody),
+                    signal
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                responseData = await response.json()
 
-                const response = await axios.post(
-                    `${this.config.apiBaseUrl}/chat/completions`,
-                    finalBody,
-                    {
-                        headers: headers,
-                        timeout: 60000
-                    }
-                );
-
-                if (response.data.choices && response.data.choices.length > 0) {
-                    const message = response.data.choices[0].message;
+                if (responseData.choices && responseData.choices.length > 0) {
+                    const message = responseData.choices[0].message;
                     
                     // 检查是否有工具调用
                     if (message.tool_calls && message.tool_calls.length > 0) {
@@ -284,9 +293,9 @@ export class AiService {
         } catch (error: any) {
             console.error('AI服务错误:', error);
             
-            if (error.response) {
-                const status = error.response.status;
-                const message = error.response.data?.error?.message || error.response.statusText;
+            if (responseData) {
+                const status = responseData.status;
+                const message = responseData?.error?.message || responseData.statusText;
                 
                 switch (status) {
                     case 401:
@@ -393,11 +402,13 @@ export class AiService {
                     headers: headers,
                     body: finalBody
                 });
-
+                this.lastRequestController = new AbortController();
+                const signal = this.lastRequestController.signal;
                 const response = await fetch(`${this.config.apiBaseUrl}/chat/completions`, {
                     method: 'POST',
                     headers: headers,
-                    body: JSON.stringify(finalBody)
+                    body: JSON.stringify(finalBody),
+                    signal
                 });
 
                 if (!response.ok) {

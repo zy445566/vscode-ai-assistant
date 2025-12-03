@@ -41,6 +41,9 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
                 case 'sendMessage':
                     await this.handleSendMessage(data.message);
                     break;
+                case 'cancelMessage':
+                    await this.handleCancelMessage();
+                    break;
                 case 'clearHistory':
                     this.clearHistory();
                     break;
@@ -96,6 +99,22 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
                 this.sendMcpServers();
             }
         });
+    }
+
+    private async handleCancelMessage() {
+         if (!this._view) {
+            return;
+        }
+        const response = await this.aiService.cancelMessage()
+        // const userMessage: ChatMessage = {
+        //     role: 'user',
+        //     content: '用户取消了回答',
+        //     timestamp: Date.now()
+        // };
+
+        // this.chatHistory.push(userMessage);
+        // this.saveChatHistory();
+        // this.updateWebview();
     }
 
     private async handleSendMessage(message: string) {

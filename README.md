@@ -147,7 +147,6 @@ src/
 ## 依赖
 
 - `@modelcontextprotocol/sdk`: MCP SDK
-- `axios`: HTTP请求库
 - `vscode`: VSCode扩展API
 
 ## 许可证

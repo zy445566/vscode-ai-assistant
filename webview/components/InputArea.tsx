@@ -3,20 +3,29 @@ import styles from './InputArea.module.css';
 
 interface InputAreaProps {
     onSendMessage: (message: string) => void;
-    disabled?: boolean;
+    onCancelMessage: () => void;
+    isLoading?: boolean;
 }
-
+let lastMessage = '';
 export const InputArea: React.FC<InputAreaProps> = ({ 
     onSendMessage, 
-    disabled = false 
+    onCancelMessage,
+    isLoading = false 
 }) => {
     const [inputValue, setInputValue] = useState('');
 
     const handleSubmit = () => {
         const message = inputValue.trim();
-        if (message && !disabled) {
+        if (message && !isLoading) {
+            lastMessage = message;
             onSendMessage(message);
             setInputValue('');
+        }
+    };
+    const handleCancel = () => {
+        if (isLoading) {
+            onCancelMessage();
+            // setInputValue(lastMessage);
         }
     };
 
@@ -36,16 +45,23 @@ export const InputArea: React.FC<InputAreaProps> = ({
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="输入消息..."
-                disabled={disabled}
+                disabled={isLoading}
                 className={styles.messageInput}
             />
-            <button 
+            {!isLoading && <button 
                 className={styles.button} 
                 onClick={handleSubmit}
-                disabled={disabled}
             >
                 发送
             </button>
+            }
+            {isLoading && <button 
+                className={styles.button} 
+                onClick={handleCancel}
+            >
+                ⏸
+            </button>
+            }
         </div>
     );
 };

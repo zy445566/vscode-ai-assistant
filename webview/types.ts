@@ -5,7 +5,7 @@ export interface ChatMessage {
 }
 
 export interface ExtensionMessage {
-    type: 'sendMessage' | 'clearHistory' | 'configureSettings' | 'requestHistory' | 'toggleTools' | 'requestMcpServers' | 'updateMcpSelection' | 'reconnectMcpServer' | 'requestAllMcpServers';
+    type: 'sendMessage' | 'cancelMessage' | 'clearHistory' | 'configureSettings' | 'requestHistory' | 'toggleTools' | 'requestMcpServers' | 'updateMcpSelection' | 'reconnectMcpServer' | 'requestAllMcpServers';
     message?: string;
     enabled?: boolean;
     selectedMcpServers?: string[];

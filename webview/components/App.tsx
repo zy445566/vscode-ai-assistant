@@ -97,6 +97,13 @@ export const App: React.FC = () => {
         vscode.postMessage(userMessage);
     };
 
+    const handleCancelMessage = () => {
+        const userMessage = {
+            type: 'cancelMessage'
+        };
+        vscode.postMessage(userMessage);
+    };
+
     const handleToggleTools = (enabled: boolean) => {
         setToolsEnabled(enabled);
         vscode.postMessage({
@@ -160,7 +167,8 @@ export const App: React.FC = () => {
             />
             <InputArea 
                 onSendMessage={handleSendMessage}
-                disabled={isLoading}
+                onCancelMessage={handleCancelMessage}
+                isLoading={isLoading}
             />
         </div>
     );
