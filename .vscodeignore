@@ -1,10 +1,79 @@
-.vscode/**
-.vscode-test/**
-src/**
+# VSCode 扩展打包忽略文件
+
+# 源代码目录（只需要编译后的 out 目录）
+src/
+webview/src/
+
+# 配置文件
+tsconfig.json
+tsconfig.webview.json
+vite.config.ts
+
+# 开发依赖
+node_modules/
+
+# 开发和构建工具相关
+.git/
 .gitignore
-.yarnrc
-vsc-extension-quickstart.md
-**/tsconfig.json
-**/.eslintrc.json
-**/*.map
-**/*.ts
+.vscode/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# 构建产物（除了 out 目录）
+dist/
+build/
+*.tgz
+
+# 日志文件
+*.log
+
+# 临时文件
+*.tmp
+*.temp
+
+# 环境文件
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE 文件
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 测试相关
+coverage/
+.nyc_output/
+*.test.js
+*.spec.js
+
+# 文档文件（可选，如果不想包含在扩展包中）
+CHANGELOG.md
+CONFIG_GUIDE.md
+MCP_EXAMPLES.md
+REACT_REFACTOR_GUIDE.md
+SIDEBAR_GUIDE.md
+STREAM_GUIDE.md
+TOOLS_FILTER_GUIDE.md
+TOOLS_SWITCH_GUIDE.md
+
+# 本地构建的扩展包
+*.vsix
+
+# 锁定文件（通常不需要在扩展包中）
+package-lock.json
+yarn.lock
+
+# 其他
+.eslintrc*
+.prettierrc*
+.editorconfig
