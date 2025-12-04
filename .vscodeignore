@@ -9,9 +9,6 @@ tsconfig.json
 tsconfig.webview.json
 vite.config.ts
 
-# 开发依赖
-node_modules/
-
 # 开发和构建工具相关
 .git/
 .gitignore
