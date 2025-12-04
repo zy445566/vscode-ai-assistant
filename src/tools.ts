@@ -357,7 +357,7 @@ export const tools = [
       "type": "function",
       "function":{
           name: "getProjectPath",
-          description: "返回当前打开的工作区的文件系统路径",
+          description: "返回当前打开的工作区的文件系统的绝对路径",
           parameters: {
             type: "object",
             properties: {},
@@ -435,7 +435,7 @@ export const tools = [
             properties: {
               path:{
                 type: "string",
-                description: "要打开文件的文件系统路径"
+                description: "要打开文件的文件系统路径，注意这里必须是绝对路径"
               }
             },
             required:["path"]
@@ -452,7 +452,7 @@ export const tools = [
             properties: {
               path:{
                 type: "string",
-                description: "文件的文件系统路径"
+                description: "文件的文件系统路径，注意这里必须是绝对路径"
               }
             },
             required:["path"]
@@ -469,7 +469,7 @@ export const tools = [
             properties: {
               path:{
                 type: "string",
-                description: "文件的文件系统路径"
+                description: "文件的文件系统路径，注意这里必须是绝对路径"
               },
               content:{
                 type: "string",
@@ -490,7 +490,7 @@ export const tools = [
             properties: {
               path:{
                 type: "string",
-                description: "要删除的文件或目录的文件系统路径"
+                description: "要删除的文件或目录的文件系统路径，注意这里必须是绝对路径"
               },
               recursive:{
                 type: "boolean",
@@ -511,11 +511,11 @@ export const tools = [
             properties: {
               oldPath:{
                 type: "string",
-                description: "原文件或目录的文件系统路径"
+                description: "原文件或目录的文件系统路径，注意这里必须是绝对路径"
               },
               newPath:{
                 type: "string",
-                description: "新文件或目录的文件系统路径"
+                description: "新文件或目录的文件系统路径，注意这里必须是绝对路径"
               }
             },
             required:["oldPath","newPath"]
@@ -532,7 +532,7 @@ export const tools = [
             properties: {
               path:{
                 type: "string",
-                description: "要创建的目录的文件系统路径"
+                description: "要创建的目录的文件系统路径，注意这里必须是绝对路径"
               }
             },
             required:["path"]
@@ -549,7 +549,7 @@ export const tools = [
             properties: {
               path:{
                 type: "string",
-                description: "目录的文件系统路径"
+                description: "目录的文件系统路径，注意这里必须是绝对路径"
               }
             },
             required:["path"]
@@ -566,7 +566,7 @@ export const tools = [
             properties: {
               path:{
                 type: "string",
-                description: "文件或目录的文件系统路径"
+                description: "文件或目录的文件系统路径，注意这里必须是绝对路径"
               }
             },
             required:["path"]
@@ -583,11 +583,11 @@ export const tools = [
             properties: {
               source:{
                 type: "string",
-                description: "源文件或目录的文件系统路径"
+                description: "源文件或目录的文件系统路径，注意这里必须是绝对路径"
               },
               destination:{
                 type: "string",
-                description: "目标文件或目录的文件系统路径"
+                description: "目标文件或目录的文件系统路径，注意这里必须是绝对路径"
               }
             },
             required:["source","destination"]
@@ -604,7 +604,7 @@ export const tools = [
             properties: {
               path:{
                 type: "string",
-                description: "要编辑的文件路径"
+                description: "要编辑的文件路径，注意这里必须是绝对路径"
               },
               edits:{
                 type: "array",
@@ -643,7 +643,7 @@ export const tools = [
             properties: {
               path:{
                 type: "string",
-                description: "起始目录路径"
+                description: "起始目录路径，注意这里必须是绝对路径"
               },
               pattern:{
                 type: "string",
