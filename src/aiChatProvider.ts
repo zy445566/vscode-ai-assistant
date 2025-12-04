@@ -45,7 +45,7 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
                     await this.handleCancelMessage();
                     break;
                 case 'clearHistory':
-                    this.clearHistory();
+                    await this.clearHistory();
                     break;
                 case 'configureSettings':
                     this.configureSettings();
@@ -238,7 +238,8 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
         vscode.commands.executeCommand('workbench.action.openSettings', 'aiChat');
     }
 
-    public clearHistory() {
+    public async clearHistory() {
+        await this.aiService.cancelMessage()
         this.chatHistory = [];
         this.saveChatHistory();
         this.updateWebview();
