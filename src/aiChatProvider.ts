@@ -501,12 +501,13 @@ export class AiChatProvider implements vscode.WebviewViewProvider {
     
 
     private loadChatHistory() {
-        const history = this.context.globalState.get<ChatMessage[]>('chatHistory', []);
+        // globalState 为全局共享，workspaceState 为当前工作区共享
+        const history = this.context.workspaceState.get<ChatMessage[]>('chatHistory', []);
         this.chatHistory = history;
     }
 
     private saveChatHistory() {
-        this.context.globalState.update('chatHistory', this.chatHistory);
+        this.context.workspaceState.update('chatHistory', this.chatHistory);
     }
 
     public dispose() {
