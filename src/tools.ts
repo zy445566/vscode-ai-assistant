@@ -98,15 +98,6 @@ export const toolHandlers:{[key:string]:Function} = {
 
     fsWriteFile: async (params: { path: string; content: string }): Promise<string> => {
         try {
-            // 询问用户是否确认修改
-            const answer = await vscode.window.showQuickPick(['是', '否'], {
-                placeHolder: `确定要修改文件 ${params.path} 吗？`
-            });
-            
-            if (answer !== '是') {
-                throw new Error('用户拒绝修改');
-            }
-
             const uri = vscode.Uri.file(params.path);
             const uint8Array = new TextEncoder().encode(params.content);
             await vscode.workspace.fs.writeFile(uri, uint8Array);
@@ -115,18 +106,23 @@ export const toolHandlers:{[key:string]:Function} = {
             throw new Error(`VSCode FS 写入文件失败: ${error}`);
         }
     },
-
-    fsDelete: async (params: { path: string; recursive?: boolean }): Promise<string> => {
+    fsAgree: async (params: { path: string;}): Promise<string> => {
         try {
-            // 询问用户是否确认删除
+            // 询问用户是否确认修改
             const answer = await vscode.window.showQuickPick(['是', '否'], {
-                placeHolder: `确定要删除 ${params.path} 吗？`
+                placeHolder: `确定要修改 ${params.path} 吗？`
             });
             
             if (answer !== '是') {
-                throw new Error('用户拒绝删除');
+                throw new Error('用户拒绝修改');
             }
-
+            return '用户同意修改';
+        } catch (error) {
+            throw new Error(`VSCode FS 同意修改文件失败: ${error}`);
+        }
+    },  
+    fsDelete: async (params: { path: string; recursive?: boolean }): Promise<string> => {
+        try {
             const uri = vscode.Uri.file(params.path);
             const options = { recursive: params.recursive || false };
             await vscode.workspace.fs.delete(uri, options);
@@ -208,14 +204,6 @@ export const toolHandlers:{[key:string]:Function} = {
         dryRun?: boolean;
     }): Promise<string> => {
         try {
-            // 询问用户是否确认编辑
-            const answer = await vscode.window.showQuickPick(['是', '否'], {
-                placeHolder: `确定要编辑文件 ${params.path} 吗？`
-            });
-            
-            if (answer !== '是') {
-                throw new Error('用户拒绝了编辑');
-            }
             const uri = vscode.Uri.file(params.path);
             const document = await vscode.workspace.openTextDocument(uri);
             
@@ -463,7 +451,7 @@ export const tools = [
       "type": "function",
       "function":{
           name: "fsWriteFile",
-          description: "使用 vscode.workspace.fs API 写入文件内容",
+          description: "使用 vscode.workspace.fs API 写入文件内容,建议新文件使用，已存在文件建议优先使用fsEditFile",
           parameters: {
             type: "object",
             properties: {
@@ -477,6 +465,23 @@ export const tools = [
               }
             },
             required:["path","content"]
+          }
+      }
+  },
+  {
+      "type": "function",
+      "function":{
+          name: "fsAgree",
+          description: "发起请求修改的文件(需要在用户修改文件之前调用，每轮用户对话下的每个文件路径提醒一次即可)，如果用户同意才能进行修改文件的相关操作，比如修改和删除文件",
+          parameters: {
+            type: "object",
+            properties: {
+              path:{
+                type: "string",
+                description: "请求修改的文件系统路径，注意这里必须是绝对路径"
+              }
+            },
+            required:["path"]
           }
       }
   },
@@ -598,7 +603,7 @@ export const tools = [
       "type": "function",
       "function":{
           name: "fsEditFile",
-          description: "使用高级模式匹配和格式化进行选择性编辑。功能包括：基于行的和多行内容匹配、保留缩进的空白标准化、多个同时编辑与正确定位、缩进样式检测和保留、Git风格差异输出与上下文、预览模式。",
+          description: "使用高级模式匹配和格式化进行选择性编辑。建议少量多次流式调用",
           parameters: {
             type: "object",
             properties: {
